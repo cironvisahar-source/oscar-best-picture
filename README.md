@@ -35,8 +35,7 @@ A clean GitHub structure for this project could be:
 oscars-best-picture-model/
 ├── README.md
 ├── data/
-│   ├── oscars.csv
-│   └── oscarcodebook.csv
+│   └──  oscars.csv
 ├── scripts/
 │   └── SCoursework.R
 ├── outputs/
