@@ -1,0 +1,68 @@
+# Predicting Academy Award Best Picture Winners
+
+Statistical modelling project using logistic regression on historical Oscar nominee data (1928–2024).
+
+## Introduction
+
+This project models the probability that a film nominated for the Academy Award for Best Picture wins the award. Using historical nominee data from 1928 to 2024, a logistic regression framework is applied to identify which film-level characteristics are associated with winning and to generate predicted probabilities for the current year’s nominees.
+
+## Data preparation
+
+The dataset contains all films nominated for Best Picture from 1928 to 2024, along with indicators for other award nominations, guild awards, critic awards, genres, ratings, and film attributes.
+
+Key preprocessing steps:
+
+- Films with unknown current-year outcomes were excluded from model fitting.
+- A binary response variable was constructed: 1 for Best Picture winner, 0 otherwise.
+- An apparent data error in Screenplay nominations (some films recorded with two nominations) was corrected by reducing those values to one.
+- Variables that do not vary meaningfully across nominees (e.g., being a Best Picture nominee itself) were excluded from the predictor set.
+
+## Full logistic regression model
+
+A full logistic regression model was fitted using a wide set of predictors, including guild awards, directing and acting nominations, critic awards, genres, and film attributes.
+
+One clearly significant predictor is the Producers Guild Award (PGA). The estimated odds ratio for PGA is approximately 42.4, with an approximate 95% confidence interval from 15.3 to 117.3. This indicates that, holding other variables constant, a film that has won the PGA award has substantially higher odds of winning Best Picture than a film that has not.
+
+## Model selection
+
+To obtain a parsimonious and well-performing model, backward elimination was used with likelihood-ratio tests and AIC as the selection criterion. At each step, the variable whose removal produced the largest reduction in AIC and had the highest p-value was dropped, continuing until no further removal improved AIC.
+
+This process yielded a final model with an AIC of 302.66, including predictors such as:
+
+- Year
+- Director nomination
+- Various guild and critic awards (e.g., PGA, DGA, Ebert, NSFC, Writers Guild)
+- Certain genre and rating indicators
+
+Rather than listing every intermediate model, the key idea is that many initially included predictors were not statistically significant and were removed to reduce overfitting while retaining strong signal variables.
+
+## Model performance
+
+Model performance was assessed using a receiver operating characteristic (ROC) curve and the area under the curve (AUC).
+
+- The AUC is 0.933, indicating strong discrimination between winners and non-winners on this dataset.
+- An optimal classification threshold was selected by minimising the distance to the top-left corner of the ROC plot, yielding a threshold of approximately 0.135.
+- At this threshold, the model’s sensitivity (true positive rate) is approximately 0.885.
+
+These metrics suggest that the model ranks films well in terms of their likelihood of winning, though probability calibration and independence assumptions remain limitations.
+
+## Predictions for the current year
+
+Using the final model, predicted probabilities of winning were computed for the current year’s Best Picture nominees. Because standard logistic regression treats each film independently, the raw probabilities do not automatically sum to one within a given year. To produce a coherent set of probabilities across nominees, the predicted probabilities were normalised so that they sum to one for that year’s slate.
+
+The resulting ranking identifies **Anora** as the film with the highest predicted probability of winning Best Picture.
+
+## Alternative modelling approach and limitations
+
+Standard binary logistic regression is not ideally suited to this problem for two main reasons:
+
+1. **Within-year competition:** Nominees in a given year compete against each other; the chance of one film winning is inherently linked to the others. Logistic regression treats observations as independent, which is not strictly true here.
+2. **Probability constraints:** There is no built-in guarantee that predicted probabilities across nominees in the same year sum to one. Normalisation is a post-hoc fix rather than a model-based solution.
+
+A more appropriate approach would be a **multinomial choice model** or a **conditional logistic regression** framework, where each year’s set of nominees is treated as a choice set. Such models naturally produce probabilities that sum to one within each year and can better represent the competitive structure of the award.
+
+## Conclusion
+
+The final logistic regression model shows strong discriminative ability in distinguishing Best Picture winners from non-winners, with key predictors including major guild and critic awards. After normalising predicted probabilities within the current year, the model points to **Anora** as the most likely winner.
+
+While useful as a first approximation, the independence assumption and lack of inherent probability constraints motivate the use of more specialised choice models for future work.
